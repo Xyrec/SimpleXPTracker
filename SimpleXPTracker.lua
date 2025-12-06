@@ -95,6 +95,8 @@ local sessionXP = 0
 local lastXP = UnitXP('player') or 0
 local lastMobXP = nil
 local recentMobXP = {} -- Array to store last 10 mob XP gains
+local totalKills = 0
+local killsSinceReset = 0
 local levelAtStart = UnitLevel('player') or 0
 
 -- Helpers
@@ -137,6 +139,8 @@ local function TrackMobKill(xp)
     if #recentMobXP > MAX_RECENT_KILLS then
         table.remove(recentMobXP, 1)
     end
+    totalKills = totalKills + 1
+    killsSinceReset = killsSinceReset + 1
 end
 
 local function UpdateDisplay()
@@ -168,29 +172,34 @@ local function UpdateDisplay()
     -- Timer on the bar (right side)
     addon.timerText:SetText(running and formatTime(elapsed) or 'Stopped')
 
+    -- Use minimum 60 second baseline to prevent inflated rates
+    local effectiveTime = math.max(60, elapsed)
+    
     -- XP/hour and kills left info
     local xpPerHour = 0
-    if elapsed>0 then xpPerHour = sessionXP / (elapsed/3600) end
+    if effectiveTime > 0 then 
+        xpPerHour = sessionXP / (effectiveTime / 3600) 
+    end
     
-    -- kills left based on average of last 10 mob XP gains
+    -- kills left based on weighted average of last 10 mob XP gains (Runelite method)
     local killsLeft = '-'
     if #recentMobXP > 0 then
-        local sum = 0
+        local totalXp = 0
         for _, xp in ipairs(recentMobXP) do
-            sum = sum + xp
+            totalXp = totalXp + xp
         end
-        local avgMobXP = sum / #recentMobXP
-        killsLeft = math.ceil(xpLeft / avgMobXP)
+        -- Weighted calculation: (xpLeft * numSamples) / totalXp
+        killsLeft = math.ceil((xpLeft * #recentMobXP) / totalXp)
     end
     
     addon.infoText:SetText(string.format('XP/hr: %d     Kills left: %s     XP left: %d', 
         math.floor(xpPerHour+0.5), tostring(killsLeft), xpLeft))
     
-    -- Time to level calculation
+    -- Time to level calculation (Runelite's integer-based formula)
     local ttl = '--:--:--'
-    if xpPerHour > 0 and xpLeft > 0 then
-        local hoursToLevel = xpLeft / xpPerHour
-        local secondsToLevel = hoursToLevel * 3600
+    if sessionXP > 0 and xpLeft > 0 and elapsed > 0 then
+        -- formula: (xpRemaining * secondsElapsed) / xpGained
+        local secondsToLevel = (xpLeft * elapsed) / sessionXP
         ttl = formatTime(secondsToLevel)
     end
     addon.ttlText:SetText(string.format('Time to level: %s', ttl))
@@ -228,6 +237,8 @@ addon.resetBtn:SetScript('OnClick', function()
     startTime = running and GetTime() or nil
     lastMobXP = nil
     recentMobXP = {} -- Clear the array
+    totalKills = 0
+    killsSinceReset = 0
     lastXP = UnitXP('player') or 0
     levelAtStart = UnitLevel('player') or 0
     UpdateDisplay()
