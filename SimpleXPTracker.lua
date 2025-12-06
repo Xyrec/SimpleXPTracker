@@ -7,7 +7,7 @@
 local MAX_LEVEL = 60
 local MAX_QUEST_XP_THRESHOLD = 5000  -- XP gains above this are likely quests, not mob kills
 local MAX_RECENT_KILLS = 10  -- Number of recent kills to track for average
-local UPDATE_INTERVAL = 0.5  -- Display update frequency in seconds
+local UPDATE_INTERVAL = 1.0  -- Display update frequency in seconds
 
 local addon = CreateFrame('Frame', 'SimpleXPTrackerFrame', UIParent)
 addon:SetSize(312, 86)
