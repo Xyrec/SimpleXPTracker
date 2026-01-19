@@ -101,7 +101,9 @@ local levelAtStart = UnitLevel('player') or 0
 
 -- Helpers
 local function IsMaxLevel()
-    return UnitLevel('player') >= MAX_LEVEL
+    -- Check if player can gain XP (max XP returns 0 when at true max level)
+    local maxXP = UnitXPMax('player')
+    return maxXP == 0 or UnitLevel('player') >= MAX_LEVEL
 end
 
 local function DisableAddon()
