@@ -1,10 +1,10 @@
 -- SimpleXPTracker.lua
--- Minimal XP/hour tracker for WoW Classic / Era (inspired by Runelite XP Tracker)
+-- Minimal XP/hour tracker for WoW TBC Anniversary (inspired by Runelite XP Tracker)
 -- Place folder SimpleXPTracker in your AddOns directory.
 -- If the addon doesn't load, update the ## Interface number in the .toc to match your client build.
 
 -- Constants
-local MAX_LEVEL = 60
+local MAX_LEVEL = 70
 local MAX_QUEST_XP_THRESHOLD = 5000  -- XP gains above this are likely quests, not mob kills
 local MAX_RECENT_KILLS = 10  -- Number of recent kills to track for average
 local UPDATE_INTERVAL = 1.0  -- Display update frequency in seconds

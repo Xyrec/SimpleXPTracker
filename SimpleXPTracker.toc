@@ -1,6 +1,6 @@
-## Interface: 11508
+## Interface: 20505
 ## Title: SimpleXPTracker
-## Notes: Minimal XP/hour tracker inspired by Runelite's XP Tracker (Classic/Era compatible).
+## Notes: Minimal XP/hour tracker inspired by Runelite's XP Tracker (TBC Anniversary compatible).
 ## Author: Xyrec
-## Version: 0.1
+## Version: 0.2
 SimpleXPTracker.lua
