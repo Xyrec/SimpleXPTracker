@@ -3,4 +3,6 @@
 ## Notes: Minimal XP/hour tracker inspired by Runelite's XP Tracker (TBC Anniversary compatible).
 ## Author: Xyrec
 ## Version: 0.2
+## IconTexture: Interface\AddOns\SimpleXPTracker\xp-icon.png
+## IconAtlas: TaskPOI-Icon
 SimpleXPTracker.lua
