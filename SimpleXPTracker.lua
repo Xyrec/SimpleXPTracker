@@ -98,18 +98,13 @@ local recentMobXP = {} -- Array to store last 10 mob XP gains
 local totalKills = 0
 local killsSinceReset = 0
 local levelAtStart = UnitLevel('player') or 0
+local userHidden = false -- hidden via /sxp, don't auto-show
 
 -- Helpers
 local function IsMaxLevel()
-    -- Check if player can gain XP (max XP returns 0 when at true max level)
-    local maxXP = UnitXPMax('player')
-    return maxXP == 0 or UnitLevel('player') >= MAX_LEVEL
-end
-
-local function DisableAddon()
-    addon:UnregisterAllEvents()
-    addon:SetScript('OnUpdate', nil)
-    addon:Hide()
+    -- UnitXPMax('player') can transiently return 0 during loading screens
+    -- (e.g. zoning into instances), so only the level is trusted here
+    return UnitLevel('player') >= MAX_LEVEL
 end
 
 local function formatTime(s)
@@ -152,12 +147,14 @@ local function UpdateDisplay()
     local xpLeft = maxXP - curXP
     local pct = (curXP / maxXP) * 100
     
-    -- Hide addon at max level
+    -- Hide addon at max level; self-heals if hidden by a bad reading
     if IsMaxLevel() then
         addon:Hide()
         return
+    elseif not userHidden and not addon:IsShown() then
+        addon:Show()
     end
-    
+
     -- Level and percentage on the bar (left side)
     addon.levelText:SetText(string.format('Lv. %d  %.2f%%', level, pct))
 
@@ -255,21 +252,11 @@ addon:RegisterEvent('CHAT_MSG_COMBAT_XP_GAIN')
 addon:SetScript('OnEvent', function(self, event, ...)
     if event == 'PLAYER_ENTERING_WORLD' then
         lastXP = UnitXP('player') or 0
-        -- Check if max level and disable addon completely
-        if IsMaxLevel() then
-            DisableAddon()
-            return
-        end
         UpdateDisplay()
         return
     elseif event == 'PLAYER_LEVEL_UP' then
         -- level up occurred: reset tracking for level progress
         lastXP = UnitXP('player') or 0
-        -- Check if reached max level and disable addon completely
-        if IsMaxLevel() then
-            DisableAddon()
-            return
-        end
         UpdateDisplay()
         return
     elseif event == 'CHAT_MSG_COMBAT_XP_GAIN' then
@@ -323,7 +310,13 @@ end)
 -- slash command to toggle visibility
 SLASH_SIMPLEXPTRACKER1 = '/sxp'
 SlashCmdList['SIMPLEXPTRACKER'] = function(msg)
-    if addon:IsShown() then addon:Hide() else addon:Show() end
+    if addon:IsShown() then
+        userHidden = true
+        addon:Hide()
+    else
+        userHidden = false
+        addon:Show()
+    end
 end
 
 -- initial update

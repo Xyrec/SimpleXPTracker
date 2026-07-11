@@ -1,4 +1,4 @@
-## Interface: 20505
+## Interface: 20505, 20506
 ## Title: SimpleXPTracker
 ## Notes: Minimal XP/hour tracker inspired by Runelite's XP Tracker (TBC Anniversary compatible).
 ## Author: Xyrec
